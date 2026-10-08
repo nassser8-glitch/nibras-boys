@@ -2748,7 +2748,7 @@ app.use(express.static(ROOT, { index: 'index.html', fallthrough: true, etag: tru
 app.use((req, res) => res.status(404).json({ error: 'not_found' }));
 
 // إبقاء المثيل نشطًا على خطة Render المجانية (ينام بعد 15 دقيقة خمول فيبرد أول دخول)
-if (process.env.RENDER && process.env.PING_URL_DISABLED !== '1' && pingUrl) {
+if (process.env.RENDER && process.env.PING_URL_DISABLED !== '1') {
   const pingUrl = process.env.PING_URL || ''; // نبراس البنين: يُضبط برابط الخدمة المستقل
   setInterval(() => { fetch(pingUrl + '/api/health').catch(() => {}); }, 4 * 60 * 1000).unref();
 }
