@@ -94,3 +94,17 @@ test('البذرة: مسؤول نبراس البنين بالبريد الخاص
   assert.ok(/admin@nibrasboys\.local/.test(SEED + SERVER), 'بريد المسؤول الخاص بالبنين');
   assert.ok(!/nasser8@gmail\.com/.test(SERVER), 'لا بريد البنات في الخادم');
 });
+
+test('verify_clean.js: ينجح مع قاعدة nibras_boys ويفشل مع قاعدة البنات، دون تسريب الرابط', () => {
+  const { spawnSync } = require('node:child_process');
+  const run = (url) => spawnSync(process.execPath, ['verify_clean.js'], {
+    cwd: ROOT, encoding: 'utf8', env: { ...process.env, DATABASE_URL: url },
+  });
+  const good = run('postgresql://alice:S3cretPass@db.example.com/nibras_boys?sslmode=require');
+  assert.equal(good.status, 0, good.stdout + good.stderr);
+  assert.ok(/VERDICT: PASS/.test(good.stdout));
+  assert.ok(!/S3cretPass|alice|db\.example\.com/.test(good.stdout), 'لا تسريب لبيانات الرابط');
+  const bad = run('postgresql://alice:S3cretPass@db.example.com/nibras_girls?sslmode=require');
+  assert.notEqual(bad.status, 0);
+  assert.ok(/nibras_girls/.test(bad.stdout) && !/S3cretPass|alice|db\.example\.com/.test(bad.stdout));
+});
