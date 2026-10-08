@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIBRAS SCHOOL — دليل المعلم الشامل</title>
+<style>
+  :root{--navy:#0a2f5c;--blue:#1d7fd6;--gold:#f5b301;--green:#16a34a;--red:#dc2626;--bg:#f7f9fc;--card:#fff;--line:#e5e7eb;--text:#1f2937;--muted:#6b7280;--radius:16px}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:0 0 60px}
+  .hero{background:linear-gradient(135deg,var(--navy),#163d6e);color:#fff;padding:48px 24px 36px;text-align:center}
+  .hero h1{font-size:clamp(26px,4vw,38px);font-weight:900;margin-bottom:6px}
+  .hero p{opacity:.85;font-size:15px}
+  .badge{display:inline-block;background:var(--gold);color:var(--navy);padding:3px 14px;border-radius:99px;font-size:12px;font-weight:800;margin-top:12px}
+  .container{max-width:900px;margin:0 auto;padding:0 16px}
+  .section{margin-top:32px}
+  .section-title{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:900;color:var(--navy);margin-bottom:16px;padding-bottom:8px;border-bottom:3px solid var(--gold)}
+  .section-title .icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .feature-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;transition:transform .2s}
+  .feature-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+  .feature-card .f-icon{font-size:28px;margin-bottom:8px}
+  .feature-card h3{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:4px}
+  .feature-card p{font-size:13px;color:var(--muted);line-height:1.6}
+  .strength-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;gap:14px;align-items:flex-start}
+  .strength-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.07)}
+  .s-num{width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0}
+  .s-text h3{font-size:14px;font-weight:800;color:var(--navy)}
+  .s-text p{font-size:13px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+  th{background:var(--navy);color:#fff;padding:12px 16px;font-size:13px;font-weight:700;text-align:right}
+  td{padding:11px 16px;font-size:13px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#f0f4fa}
+  .pts-neg{color:var(--red);font-weight:800;font-size:15px}
+  .pts-pos{color:var(--green);font-weight:800;font-size:15px}
+  .tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700}
+  .tag-red{background:#fee2e2;color:var(--red)}
+  .tag-green{background:#dcfce7;color:var(--green)}
+  .tag-gold{background:#fef3c7;color:#92400e}
+  .tag-blue{background:#dbeafe;color:#1e40af}
+  .note-box{background:#fffbeb;border:1px solid #fbbf24;border-radius:var(--radius);padding:16px;margin-top:16px;font-size:13px;color:#92400e}
+  .note-box b{color:#78350f}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
+  .summary-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-align:center}
+  .summary-card .big{font-size:28px;font-weight:900}
+  .summary-card .label{font-size:12px;color:var(--muted);margin-top:4px}
+  .footer{text-align:center;margin-top:40px;padding:20px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+  @media(max-width:600px){.features-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>نظام NIBRAS SCHOOL</h1>
+  <p>دليل المعلم الشامل — سياسة النقاط والمميزات</p>
+  <div class="badge">المدرسة السعودية — إسلام آباد 2026</div>
+</div>
+
+<div class="container">
+
+  <!-- ===== المميزات ===== -->
+  <div class="section">
+    <div class="section-title"><div class="icon" style="background:#dbeafe;color:#1e40af">📋</div> مميزات البرنامج بالكامل</div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="f-icon">👥</div><h3>إدارة الطلاب</h3><p>تسجيل وتعديل بيانات الطلاب، بحث فوري بالاسم أو الرقم، ملف شامل لكل طالب.</p></div>
+      <div class="feature-card"><div class="f-icon">✓</div><h3>الحضور والغياب</h3><p>تسجيل يومي بضغطة واحدة، حالات: حاضر / غائب / متأخر، تسجيل دقائق التأخر.</p></div>
+      <div class="feature-card"><div class="f-icon">⏱</div><h3>تصنيف التأخر</h3><p>تأخر صباحي | تأخر عن الحصة | خروج مبكر — مع خصم نقاط متدرج حسب الدقائق.</p></div>
+      <div class="feature-card"><div class="f-icon">⭐</div><h3>نظام النقاط</h3><p>ملاحظات إيجابية وسلبية + خصم تلقائي من الحضور والتحويلات — سجل كامل لكل نقطة.</p></div>
+      <div class="feature-card"><div class="f-icon">↔</div><h3>التحويلات التأديبية</h3><p>تحويل الطالب للوكيل/المدير مع أسباب محددة وخصم نقاط تلقائي حسب السبب.</p></div>
+      <div class="feature-card"><div class="f-icon">🏫</div><h3>الفصول والجدول</h3><p>إدارة الفصول مع الأدوار، جدول حصص المعلم اليومي.</p></div>
+      <div class="feature-card"><div class="f-icon">🎉</div><h3>الأنشطة والفعاليات</h3><p>إنشاء أنشطة وتسجيل المشاركين، طلبات مشاركة بانتظار موافقة الوكيل.</p></div>
+      <div class="feature-card"><div class="f-icon">💬</div><h3>الرسائل والمتابعة</h3><p>رسائل موجهة بين المعلمين والإدارة، متابعة شخصية لكل معلم.</p></div>
+      <div class="feature-card"><div class="f-icon">🔧</div><h3>الصيانة</h3><p>بلاغات أعطال وصيانة من المعلمين مع تتبع الحالة والتحويل.</p></div>
+      <div class="feature-card"><div class="f-icon">📒</div><h3>المفكرة والتذكير</h3><p>مفكرة شخصية لكل مستخدم مع تذكيرات يومية تلقائية.</p></div>
+      <div class="feature-card"><div class="f-icon">▥</div><h3>التقارير</h3><p>تقارير شاملة عن الطلاب والمعلمين — تصدير إلى ملف Excel.</p></div>
+      <div class="feature-card"><div class="f-icon">🔒</div><h3>الأمان والخصوصية</h3><p>كلمة مرور مشفرة، صلاحيات لكل دور، جلسات مؤقتة آمنة.</p></div>
+    </div>
+  </div>
+
+  <!-- ===== نقاط القوة ===== -->
+  <div class="section">
+    <div class="section-title"><div class="icon" style="background:#fef3c7;color:#92400e">💪</div> أهم نقاط القوة</div>
+    <div style="display:grid;gap:12px">
+      <div class="strength-card"><div class="s-num">1</div><div class="s-text"><h3>متكامل في منصة واحدة</h3><p>لا يحتاج تطبيقات متعددة — كل شيء من الحضور إلى التقارير في مكان واحد</p></div></div>
+      <div class="strength-card"><div class="s-num">2</div><div class="s-text"><h3>عربي بالكامل</h3><p>واجهة عربية أنيقة مصممة خصيصاً للمدارس العربية</p></div></div>
+      <div class="strength-card"><div class="s-num">3</div><div class="s-text"><h3>يعمل على الكمبيوتر والجوال</h3><p>متجاوب مع جميع الأجهزة — يعمل من المتصفح مباشرة بدون تثبيت</p></div></div>
+      <div class="strength-card"><div class="s-num">4</div><div class="s-text"><h3>نظام نقاط ذكي ومتكامل</h3><p>النقاط الإيجابية والسلبية موحدة مع خصم تلقائي — لا يحتاج تدخل يدوي</p></div></div>
+      <div class="strength-card"><div class="s-num">5</div><div class="s-text"><h3>مزامنة فورية وسحابية</h3><p>البيانات محفوظة على السحابة — لا تضيع حتى مع تغيير الجهاز</p></div></div>
+      <div class="strength-card"><div class="s-num">6</div><div class="s-text"><h3>أمان متعدد المستويات</h3><p>كل مستخدم له صلاحيات محددة — المعلم لا يرى غير فصله</p></div></div>
+      <div class="strength-card"><div class="s-num">7</div><div class="s-text"><h3>تتبع شامل لكل طالب</h3><p>ملف شخصي: الحضور + الملاحظات + النقاط + التحويلات — كل شيء في مكان واحد</p></div></div>
+      <div class="strength-card"><div class="s-num">8</div><div class="s-text"><h3>إشعارات ذكية</h3><p>إشعارات فورية عند التحويل أو بلاغ الصيانة أو طلب المشاركة</p></div></div>
+      <div class="strength-card"><div class="s-num">9</div><div class="s-text"><h3>إحصائيات ولوحة تحكم</h3><p>عدادات حية، أوائل يومياً وشهرياً، إحصائيات المعلمين والحضور</p></div></div>
+      <div class="strength-card"><div class="s-num">10</div><div class="s-text"><h3>تصدير البيانات</h3><p>تصدير الطلاب والمعلمين والتقارير إلى ملف Excel بنقرة واحدة</p></div></div>
+    </div>
+  </div>
+
+  <!-- ===== جدول الخصم ===== -->
+  <div class="section">
+    <div class="section-title"><div class="icon" style="background:#fee2e2;color:var(--red)">🔴</div> سياسة الخصم — النقاط السلبية</div>
+
+    <h3 style="color:var(--navy);font-weight:800;margin-bottom:10px;font-size:16px">أ) الخصم التلقائي من الحضور</h3>
+    <table>
+      <thead><tr><th>حالة الحضور</th><th>الدقائق</th><th>النقاط المخصومة</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag-red">غائب</span></td><td>—</td><td class="pts-neg">-2</td></tr>
+        <tr><td><span class="tag tag-gold">متأخر</span></td><td>1 – 15 دقيقة</td><td class="pts-neg">-1</td></tr>
+        <tr><td><span class="tag tag-gold">متأخر</span></td><td>16 – 30 دقيقة</td><td class="pts-neg">-2</td></tr>
+        <tr><td><span class="tag tag-gold">متأخر</span></td><td>31 – 60 دقيقة</td><td class="pts-neg">-3</td></tr>
+        <tr><td><span class="tag tag-gold">متأخر</span></td><td>أكثر من 60 دقيقة</td><td class="pts-neg">-4</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box"><b>ملاحظة:</b> الخصم من الحضور يُسجَّل تلقائياً عند حفظ الحضور — لا يحتاج تدخل المعلم.</div>
+
+    <h3 style="color:var(--navy);font-weight:800;margin:20px 0 10px;font-size:16px">ب) الخصم من الملاحظات السلبية (من المعلم مباشرة)</h3>
+    <table>
+      <thead><tr><th>الفئة</th><th>النقاط</th><th>التوضيح</th></tr></thead>
+      <tbody>
+        <tr><td>التنمر</td><td class="pts-neg">-10</td><td>أقصى عقوبة — مخالفة جسيمة</td></tr>
+        <tr><td>قلة الاحترام</td><td class="pts-neg">-7</td><td>احترام الزملاء والمعلمين شرط أساسي</td></tr>
+        <tr><td>عدم الانضباط</td><td class="pts-neg">-6</td><td>خروج عن الأنظمة والقواعد</td></tr>
+        <tr><td>الإزعاج داخل الفصل</td><td class="pts-neg">-5</td><td>اضطراب على سير الحصة</td></tr>
+        <tr><td>عدم إنجاز الواجبات</td><td class="pts-neg">-4</td><td>عدم تسليم الواجب في موعده</td></tr>
+        <tr><td>عدم المشاركة</td><td class="pts-neg">-3</td><td>عدم المشاركة في الأنشطة والحصص</td></tr>
+        <tr><td>أخرى / تحرير</td><td class="pts-neg">-3</td><td>عند اختيار "أخرى" أو "تحرير"</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="color:var(--navy);font-weight:800;margin:20px 0 10px;font-size:16px">ج) الخصم التلقائي عند تحويل الطالب للوكيل/المدير</h3>
+    <table>
+      <thead><tr><th>سبب التحويل</th><th>النقاط</th></tr></thead>
+      <tbody>
+        <tr><td>سلوك غير لائق / نزاع مع زملاء</td><td class="pts-neg">-5</td></tr>
+        <tr><td>الغياب المتكرر / عدم إنجاز الواجبات / تعطيل سير الحصة</td><td class="pts-neg">-4</td></tr>
+        <tr><td>التأخر المستمر / قلة انتباه أثناء الشرح / الأكل</td><td class="pts-neg">-2</td></tr>
+        <tr><td>أخرى / تحرير</td><td class="pts-neg">-3</td></tr>
+        <tr><td>حاجة لمتابعة إرشادية</td><td class="pts-neg">-1</td></tr>
+        <tr><td>مشكلة أسرية / صعوبات في التعلم</td><td style="color:var(--muted);font-weight:700">0</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box"><b>ملاحظة:</b> خصم التحويل يُسجَّل تلقائياً عند إنشاء التحويل — لا يحتاج تدخل يدوي.</div>
+  </div>
+
+  <!-- ===== جدول النقاط الإيجابية ===== -->
+  <div class="section">
+    <div class="section-title"><div class="icon" style="background:#dcfce7;color:var(--green)">🟢</div> سياسة النقاط الإيجابية</div>
+    <table>
+      <thead><tr><th>الفئة</th><th>النقاط</th><th>التوضيح</th></tr></thead>
+      <tbody>
+        <tr><td>تفوق دراسي</td><td class="pts-pos">+10</td><td>أعلى نقطة — تقدير للتفوق العلمي</td></tr>
+        <tr><td>القيادة</td><td class="pts-pos">+6</td><td>المبادرة والقدرة على قيادة المجموعة</td></tr>
+        <tr><td>الانضباط</td><td class="pts-pos">+5</td><td>الالتزام بالقواعد والدوام في الوقت</td></tr>
+        <tr><td>الاحترام</td><td class="pts-pos">+5</td><td>احترام الزملاء والمعلمين</td></tr>
+        <tr><td>التعاون</td><td class="pts-pos">+4</td><td>المساعدة والعمل الجماعي</td></tr>
+        <tr><td>المثابرة</td><td class="pts-pos">+4</td><td>الاستمرارية والاجتهاد</td></tr>
+        <tr><td>إنجاز الواجبات</td><td class="pts-pos">+3</td><td>تسليم الواجبات كاملة وفي الوقت</td></tr>
+        <tr><td>المشاركة</td><td class="pts-pos">+3</td><td>المشاركة الفعالة في الحصص والأنشطة</td></tr>
+        <tr><td>أخرى / تحرير</td><td class="pts-pos">+2</td><td>عند اختيار "أخرى" أو "تحرير"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== ملخص سريع ===== -->
+  <div class="section">
+    <div class="section-title"><div class="icon" style="background:#dbeafe;color:#1e40af">⚡</div> ملخص سريع للمعلم</div>
+    <div class="summary-grid">
+      <div class="summary-card"><div class="big" style="color:var(--muted)">0</div><div class="label">سجّلت طالباً حاضراً</div></div>
+      <div class="summary-card"><div class="big" style="color:var(--red)">-2</div><div class="label">سجّلت طالباً غائباً</div></div>
+      <div class="summary-card"><div class="big" style="color:var(--red)">-1 إلى -4</div><div class="label">سجّلت طالباً متأخراً</div></div>
+      <div class="summary-card"><div class="big" style="color:var(--green)">+3</div><div class="label">ملاحظة إيجابية (مشاركة)</div></div>
+      <div class="summary-card"><div class="big" style="color:var(--red)">-5</div><div class="label">ملاحظة سلبية (إزعاج)</div></div>
+      <div class="summary-card"><div class="big" style="color:var(--red)">-5</div><div class="label">تحويل للوكيل (سلوك غير لائق)</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  نظام NIBRAS SCHOOL — المدرسة السعودية في إسلام آباد — جميع الحقوق محفوظة &copy; 2026
+  <div style="margin-top:10px"><a href="index.html" style="color:var(--primary);text-decoration:underline;font-size:13px">العودة لصفحة الدخول</a></div>
+</div>
+
+</body>
+</html>

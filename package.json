@@ -1,0 +1,21 @@
+{
+  "name": "nibras-boys-school-server",
+  "version": "1.0.0",
+  "description": "خادم نظام المدرسة — مزامنة قواعد البيانات للمستخدمين المتعددين",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "nodemailer": "^9.0.5",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^5.5.0"
+  }
+}

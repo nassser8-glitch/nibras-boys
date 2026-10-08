@@ -1,0 +1,17 @@
+node_modules
+.next
+.env
+*.log
+prisma
+src
+data
+next.config.js
+next-env.d.ts
+postcss.config.js
+tailwind.config.ts
+tsconfig.json
+tsconfig.tsbuildinfo
+_listusers.js
+*.env
+.env.*
+!.env.example

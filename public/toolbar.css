@@ -1,0 +1,112 @@
+:root{
+  --tb-bg:#ffffff; --tb-fg:#16233a; --tb-dim:#6b7a90; --tb-line:#e3e9f2;
+  --tb-acc:#1f6feb; --tb-acc-bg:#eaf2ff; --tb-btn:#f2f5f9; --tb-shadow:0 10px 30px rgba(16,32,64,.16);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --tb-bg:#141a24; --tb-fg:#e8eef7; --tb-dim:#93a2b8; --tb-line:#26303f;
+         --tb-acc:#6aa6ff; --tb-acc-bg:#1c2a3f; --tb-btn:#1d2532; --tb-shadow:0 10px 30px rgba(0,0,0,.5); }
+}
+html[data-theme="dark"]{
+  --tb-bg:#141a24; --tb-fg:#e8eef7; --tb-dim:#93a2b8; --tb-line:#26303f;
+  --tb-acc:#6aa6ff; --tb-acc-bg:#1c2a3f; --tb-btn:#1d2532; --tb-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+
+.tb-root{ position:fixed; inset:auto 16px 16px auto; z-index:2147483000; font-size:14px;
+  font-family:inherit; color:var(--tb-fg); }
+html[dir="rtl"] .tb-root{ inset:auto auto 16px 16px; }
+body.tb-docked .tb-root{ position:absolute; }
+
+/* ---------- زر عائم ---------- */
+.tb-fab{ width:48px; height:48px; border-radius:50%; border:1px solid var(--tb-line);
+  background:var(--tb-bg); color:var(--tb-fg); font-size:20px; cursor:pointer;
+  box-shadow:var(--tb-shadow); display:flex; align-items:center; justify-content:center; }
+.tb-fab:hover{ border-color:var(--tb-acc); }
+.tb-fab:focus-visible, .tb-btn:focus-visible, .tb-tab:focus-visible,
+.tb-lang:focus-visible, .tb-key:focus-visible, .tb-x:focus-visible{
+  outline:2px solid var(--tb-acc); outline-offset:2px; }
+
+/* ---------- اللوحة ---------- */
+.tb-panel{ width:min(340px, calc(100vw - 32px)); background:var(--tb-bg);
+  border:1px solid var(--tb-line); border-radius:14px; box-shadow:var(--tb-shadow);
+  overflow:hidden; display:flex; flex-direction:column; }
+.tb-top{ display:flex; align-items:center; gap:8px; padding:10px 12px;
+  border-bottom:1px solid var(--tb-line); }
+.tb-title{ font-weight:700; }
+.tb-langs{ display:flex; gap:4px; margin-inline-start:auto; }
+.tb-lang{ border:1px solid var(--tb-line); background:transparent; color:var(--tb-dim);
+  border-radius:999px; padding:2px 9px; font-size:11px; cursor:pointer; }
+.tb-lang.tb-on{ background:var(--tb-acc-bg); color:var(--tb-acc); border-color:var(--tb-acc); }
+.tb-x{ border:0; background:transparent; color:var(--tb-dim); font-size:20px;
+  line-height:1; cursor:pointer; padding:0 2px; }
+
+.tb-tab{ border:0; background:transparent; padding:8px 0; font-size:17px;
+  cursor:pointer; border-bottom:2px solid transparent; }
+.tb-tab:hover{ background:var(--tb-btn); }
+.tb-tab.tb-on{ border-bottom-color:var(--tb-acc); }
+.tb-root > .tb-panel > .tb-tab{ display:inline-block; }
+.tb-panel{ }
+.tb-body{ padding:12px; min-height:110px; max-height:min(58vh, 460px); overflow:auto; }
+
+/* ---------- عناصر مشتركة ---------- */
+.tb-muted{ color:var(--tb-dim); font-size:12px; margin-top:6px; }
+.tb-row{ display:flex; justify-content:space-between; gap:10px; padding:5px 7px;
+  border-radius:7px; }
+.tb-row:nth-child(odd){ background:var(--tb-btn); }
+.tb-row.tb-next{ background:var(--tb-acc-bg); color:var(--tb-acc); font-weight:700; }
+.tb-k{ color:var(--tb-dim); }
+.tb-btn{ border:1px solid var(--tb-line); background:var(--tb-btn); color:var(--tb-fg);
+  border-radius:8px; padding:5px 10px; cursor:pointer; }
+.tb-btn:hover{ border-color:var(--tb-acc); }
+.tb-inp{ width:100%; box-sizing:border-box; border:1px solid var(--tb-line);
+  background:var(--tb-bg); color:var(--tb-fg); border-radius:8px; padding:7px 9px;
+  font-family:inherit; font-size:14px; }
+.tb-area{ min-height:62px; resize:vertical; margin-top:8px; }
+.tb-go{ width:100%; margin-top:8px; background:var(--tb-acc); color:#fff;
+  border-color:var(--tb-acc); font-weight:700; padding:8px; }
+.tb-go:hover{ filter:brightness(1.08); }
+
+/* ---------- الطقس ---------- */
+.tb-w{ display:flex; gap:12px; align-items:center; }
+.tb-w-ico{ font-size:38px; line-height:1; }
+.tb-w-t{ font-size:26px; font-weight:800; }
+.tb-w-d{ font-size:13px; }
+.tb-w-m, .tb-w-old{ font-size:11px; color:var(--tb-dim); }
+
+/* ---------- التقويم ---------- */
+.tb-cal-head{ display:flex; align-items:center; justify-content:space-between;
+  gap:8px; margin-bottom:8px; font-weight:700; }
+.tb-dows, .tb-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px;
+  text-align:center; }
+.tb-dow{ font-size:10px; color:var(--tb-dim); padding:2px 0; }
+.tb-day{ padding:3px 0; border-radius:6px; font-size:12px; line-height:1.25; }
+.tb-day i{ display:block; font-style:normal; font-size:9px; color:var(--tb-dim); }
+.tb-day:hover{ background:var(--tb-btn); }
+.tb-today{ background:var(--tb-acc-bg); color:var(--tb-acc); font-weight:800; }
+.tb-cal-f{ margin-top:8px; font-size:11px; color:var(--tb-dim); text-align:center; }
+
+/* ---------- الحاسبة ---------- */
+.tb-calc-out{ text-align:end; font-size:24px; font-weight:700; padding:8px 10px;
+  background:var(--tb-btn); border-radius:9px; margin-bottom:8px;
+  overflow-x:auto; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.tb-calc-pad{ display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+.tb-key{ border:1px solid var(--tb-line); background:var(--tb-btn); color:var(--tb-fg);
+  border-radius:8px; padding:11px 0; font-size:15px; cursor:pointer; }
+.tb-key:hover{ border-color:var(--tb-acc); }
+.tb-key.tb-eq{ background:var(--tb-acc); color:#fff; border-color:var(--tb-acc); }
+
+/* ---------- المترجم ---------- */
+.tb-tr-sel{ display:flex; gap:6px; align-items:center; }
+.tb-tr-out{ margin-top:8px; padding:9px 10px; background:var(--tb-btn);
+  border-radius:9px; min-height:38px; white-space:pre-wrap; word-break:break-word; }
+
+/* شاشات صغيرة: نوسّع اللوحة لتقرب من الحواف. */
+@media (max-width:520px){
+  .tb-panel{ width:calc(100vw - 24px); }
+  .tb-body{ max-height:64vh; }
+}
+
+@media print{ .tb-root{ display:none !important; } }
+@media (prefers-reduced-motion: no-preference){
+  .tb-panel{ animation:tbIn .12s ease-out; }
+  @keyframes tbIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+}
