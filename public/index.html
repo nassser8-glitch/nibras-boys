@@ -1173,8 +1173,8 @@ function mergeClassesLocal(lArr, sArr){
 }
 async function __syncPush(school){
   if(!__syncEnabled()) return;
-  const key = 'nibras_'+school+'_db_v1';
-  const pendKey = 'nibras_'+school+'_pending_v1';
+  const key = 'nibras_'+school.toLowerCase()+'_db_v1';
+  const pendKey = 'nibras_'+school.toLowerCase()+'_pending_v1';
   const st = __pushState(school);
   if(st.running) return;
   st.running = true;
@@ -1689,8 +1689,8 @@ async function __syncPull(school){
     if(!resid.ok) return;
     const j = await resid.json();
     if(!j || !j.data || !j.ts) return;
-    const key = 'nibras_'+school+'_db_v1';
-    const pendKey = 'nibras_'+school+'_pending_v1';
+    const key = 'nibras_'+school.toLowerCase()+'_db_v1';
+    const pendKey = 'nibras_'+school.toLowerCase()+'_pending_v1';
     let local = null;
     try{ local = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){}
     // يوجد احتياطي تعديلات لم تُرفع: لا نبدّل نسخة الجهاز ببيانات الخادم (قد تمسحها)؛
@@ -1968,7 +1968,7 @@ async function __refreshSchool(school){
     if(!resp.ok) return;
     const j = await resp.json();
     if(j && j.data){
-      const key = 'nibras_'+school+'_db_v1';
+      const key = 'nibras_'+school.toLowerCase()+'_db_v1';
       let local = null;
       try{ const raw = localStorage.getItem(key); if(raw) local = JSON.parse(raw); }catch(e){ local = null; }
       // دمج واعٍ للشواهد: لو كان التكليف محذوفاً محلياً (قبر) لا نعيده حتى لو وصلت نسخة قديمة
@@ -2074,7 +2074,7 @@ function seedPersistentData(){
     }
   }
   Object.keys(DEMO_SEED || {}).forEach(school => {
-    const key = 'nibras_'+school+'_db_v1';
+    const key = 'nibras_'+school.toLowerCase()+'_db_v1';
     if(!localStorage.getItem(key)){
       const d = JSON.parse(JSON.stringify(DEMO_SEED[school]));
       if(__delta !== 0) __demoResolve(d, __delta);
@@ -2106,7 +2106,7 @@ function dedupeTeacherAccounts(){
   if(__serverEnabled()) return;
   let changedAny = false;
   ['BOYS'].forEach(school => {
-    const key = 'nibras_'+school+'_db_v1';
+    const key = 'nibras_'+school.toLowerCase()+'_db_v1';
     let d = null;
     try{ d = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){}
     if(!d || !Array.isArray(d.users)) return;
@@ -3124,7 +3124,7 @@ async function saveFirstLogin(){
     if(!user) return;
     const school = getUserSchool();
     if(!school) return;
-    const key = 'nibras_'+school+'_db_v1';
+    const key = 'nibras_'+school.toLowerCase()+'_db_v1';
     const d = JSON.parse(localStorage.getItem(key) || 'null');
     if(!d) return;
     const u = d.users.find(x => x.id === user.id);
@@ -3212,7 +3212,7 @@ async function saveAccount(){
     // النسخة المحلية
     const school = getUserSchool();
     if(!school) return;
-    const key = 'nibras_'+school+'_db_v1';
+    const key = 'nibras_'+school.toLowerCase()+'_db_v1';
     const d = JSON.parse(localStorage.getItem(key) || 'null');
     if(!d) return;
     const u = d.users.find(x => x.id === user.id);
