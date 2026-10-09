@@ -39,7 +39,7 @@
   function T(k) { var m = LANGS[L()]; return m[k] || k; }
 
   /* ------------------------------------------------------- متغيرات وق Buhota */
-  var CITY = { lat: 31.9454, lon: 35.9284, name: 'Amman' }; /* عمّان افتراضياً */
+  var CITY = { lat: 33.6844, lon: 73.0479, name: 'إسلام آباد' }; /* إسلام آباد تلقائياً */
   var WMO = {
     0: ['☀️', 'clear'], 1: ['🌤', 'mostly clear'], 2: ['⛅', 'partly cloudy'], 3: ['☁️', 'overcast'],
     45: ['🌫', 'fog'], 48: ['🌫', 'rime fog'], 51: ['🌦', 'light drizzle'], 53: ['🌦', 'drizzle'],
@@ -135,6 +135,8 @@
   var EN_DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var AR_DOW = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
   var AR_DOW_SHORT = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'];
+  var AR_GREG = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  var EN_GREG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   function calRender(box) {
     if (!calRef) calRef = new Date();
@@ -143,7 +145,7 @@
     var today = new Date();
     var isToday = today.getFullYear() === y && today.getMonth() === m;
     var en = L() === 'en';
-    var mn = en ? EN_MONTHS[m] : AR_MONTHS[m];
+    var mn = en ? EN_GREG[m] : AR_GREG[m];
     var head = '<div class="tb-cal-head">' +
       '<button class="tb-btn" data-cal="-1">‹</button>' +
       '<span>' + esc(mn) + ' ' + y + '</span>' +
@@ -344,10 +346,22 @@
   var P_TTL = 12 * 60 * 60 * 1000;
   var P_KEY = { fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' };
   var P_EN = { fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
-  function todayKey() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function p2(n) { return (n < 10 ? '0' : '') + n; }
+  function todayKey() { var d = new Date(); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function hmz(inst, tz) {
+    try {
+      return new Intl.DateTimeFormat(L() === 'en' ? 'en-GB' : 'ar-JO', {
+        timeZone: tz || undefined, hour: '2-digit', minute: '2-digit', hour12: false
+      }).format(new Date(inst));
+    } catch (e) { return '--:--'; }
+  }
   function prayerRender(box) {
     var c = lsGet('prayer', null);
-    if (!c || c.day !== todayKey()) { box.innerHTML = '<div class="tb-muted">' + esc(T('prayer')) + ' — …</div>'; fetchPrayer(box); return; }
+    var stale = !c || c.day !== todayKey();
+    /* لو حُمّلت بيانات قبل ثوانٍ وما زال تاريخها مختلفاً (اختلاف ثوانٍ حول منتصف
+     * الليل مثلاً) فلا نعيد الطلب إلى ما لا نهاية — نعرضها كما هي. */
+    if (stale && c && c.t && Date.now() - c.at < 5000) stale = false;
+    if (stale) { box.innerHTML = '<div class="tb-muted">' + esc(T('prayer')) + ' — …</div>'; fetchPrayer(box); return; }
     var en = L() === 'en';
     var names = en ? P_EN : P_KEY;
     var now = new Date(), nx = null, nxName = '';
@@ -357,34 +371,59 @@
       if (!t) return;
       if (new Date(t) > now && !nx) { nx = t; nxName = names[k]; }
     });
+    var tz = c.tz || null;
     box.innerHTML = order.map(function (k) {
       if (!c.t[k]) return '';
       var on = (nx === c.t[k]) ? ' tb-next' : '';
       return '<div class="tb-row' + on + '"><span class="tb-k">' + esc(names[k]) + '</span><span class="tb-v">' +
-        esc(c.t[k].slice(11, 16)) + '</span></div>';
+        esc(hmz(c.t[k], tz)) + '</span></div>';
     }).join('') +
       (nx ? '<div class="tb-muted">' + (en ? 'next: ' : 'القادم: ') + esc(nxName) + '</div>' : '') +
       (en ? '' : '<div class="tb-muted">' + esc(c.city) + '</div>');
   }
   function fetchPrayer(box) {
-    var u = 'https://api.aladhan.com/v1/timings?latitude=' + CITY.lat + '&longitude=' + CITY.lon + '&method=4';
-    fetch(u).then(function (r) { return r.json(); }).then(function (j) {
-      var t = j && j.data && j.data.timings;
-      if (!t) throw new Error('bad');
-      var day = todayKey(), o = { at: Date.now(), day: day, city: CITY.name, t: {} };
-      Object.keys(t).forEach(function (k) {
-        var parts = String(t[k]).split(' ');
-        if (!parts[0]) return;
-        var iso = day + 'T' + parts[0] + ':00';
-        o.t[k] = iso;
+    /* عبر خادمنا أولاً (نفس الأصل فلا يحجبه الحاجز) ويُرجع لحظات زمنية بمنطقة إسلام آباد،
+     * وعند فشله نجرّب خدمة المواقيت مباشرة من المتصفح. */
+    fetch('/api/prayer?lat=' + CITY.lat + '&lon=' + CITY.lon + '&method=4')
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.t) throw new Error('bad');
+        var day = j.day || todayKey(), o = { at: Date.now(), day: day, tz: j.tz || null, city: CITY.name, t: {} };
+        Object.keys(j.t).forEach(function (k) {
+          var v = j.t[k];
+          if (typeof v === 'string') {
+            var p = String(v).match(/(\d{1,2}):(\d{2})/);
+            if (!p) return;
+            v = new Date(day + 'T' + p2(+p[1] % 24) + ':' + p[2] + ':00').getTime();
+          }
+          o.t[k] = v;
+        });
+        lsSet('prayer', o); if (box && box.isConnected) prayerRender(box);
+      })
+      .catch(function () {
+        fetch('https://api.aladhan.com/v1/timings?latitude=' + CITY.lat + '&longitude=' + CITY.lon + '&method=4')
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            var t = j && j.data && j.data.timings;
+            if (!t) throw new Error('bad');
+            var tz = (j.data && j.data.meta && j.data.meta.timezone) || null;
+            var day = todayKey(), o = { at: Date.now(), day: day, tz: tz, city: CITY.name, t: {} };
+            Object.keys(t).forEach(function (k) {
+              var p = String(t[k]).split(' ');
+              if (!p[0]) return;
+              var hm = p[0].split(':');
+              if (!hm[1]) return;
+              o.t[String(k).toLowerCase()] = new Date(day + 'T' + p2(+hm[0] % 24) + ':' + hm[1] + ':00').getTime();
+            });
+            lsSet('prayer', o); if (box && box.isConnected) prayerRender(box);
+          })
+          .catch(function () {
+            if (box && box.isConnected) {
+              var c = lsGet('prayer', null);
+              if (!c) box.innerHTML = '<div class="tb-muted">—</div>';
+            }
+          });
       });
-      lsSet('prayer', o); if (box && box.isConnected) prayerRender(box);
-    }).catch(function () {
-      if (box && box.isConnected) {
-        var c = lsGet('prayer', null);
-        if (!c) box.innerHTML = '<div class="tb-muted">—</div>';
-      }
-    });
   }
 
   /* ============================================================== اللوحة */

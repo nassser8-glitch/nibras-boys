@@ -213,11 +213,23 @@ test('calendar: every gregorian date converts to a distinct hijri day', () => {
   assert.equal(seen.size, 365);
 });
 
+test('calendar: header shows the gregorian month name, not the hijri one', () => {
+  const { api } = loadToolbar();
+  /* رأس الشبكة ميلادي (أكتوبر 2026) بينما سطر هجري أسفل يعرض الشهر الهجري الحقيقي */
+  const h = api.hijri(2026, 9, 4);
+  assert.ok(h, 'hijri still resolves');
+  assert.ok(/AR_GREG = \[/.test(SRC), 'gregorian month table exists');
+  assert.ok(/EN_GREG = \[/.test(SRC), 'english gregorian month table exists');
+  assert.ok(/var mn = en \? EN_GREG\[m\] : AR_GREG\[m\]/.test(SRC), 'header indexes the gregorian names');
+  assert.ok(/AR_MONTHS\[m\]/.test(SRC) === false, 'header must not index hijri names by gregorian month');
+  assert.ok(h.month !== 10, 'october 2026 is not shawwal (10)');
+});
+
 /* ============================================================ مواقيت الصلاة */
 test('prayer: renders all six times and flags the next one', () => {
   const { api } = loadToolbar();
   const day = new Date();
-  const key = day.getFullYear() + '-' + (day.getMonth() + 1) + '-' + day.getDate();
+  const key = day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' + String(day.getDate()).padStart(2, '0');
   const future = new Date(Date.now() + 3600e3).toISOString();
   api.lsSet('prayer', {
     at: Date.now(), day: key, city: 'Amman',
@@ -236,11 +248,47 @@ test('prayer: renders all six times and flags the next one', () => {
 test('prayer: cached data for today renders without network', () => {
   const { api, fetchCalls } = loadToolbar();
   const day = new Date();
-  const key = day.getFullYear() + '-' + (day.getMonth() + 1) + '-' + day.getDate();
+  const key = day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' + String(day.getDate()).padStart(2, '0');
   api.lsSet('prayer', { at: Date.now(), day: key, city: 'Amman', t: { fajr: new Date().toISOString() } });
   const box = makeEl('tbBody');
   api.prayerRender(box);
   assert.equal(fetchCalls.length, 0, 'no refetch when data is current');
+});
+
+test('prayer: fetch goes through the same-origin proxy with islamabad coords', () => {
+  const { api, fetchCalls } = loadToolbar({
+    fetch: async () => ({ json: async () => ({ tz: 'Asia/Karachi', t: { fajr: Date.now() } }) })
+  });
+  api.fetchPrayer(makeEl('tbBody'));
+  assert.equal(fetchCalls.length, 1, 'exactly one request when the proxy answers');
+  assert.ok(/\/api\/prayer/.test(fetchCalls[0]), 'uses the same-origin proxy route');
+  assert.ok(/lat=33\.6844/.test(fetchCalls[0]), 'islamabad latitude');
+  assert.ok(/lon=73\.0479/.test(fetchCalls[0]), 'islamabad longitude');
+});
+
+test('prayer: direct aladhan fallback normalizes capitalized keys to lowercase', async () => {
+  const { api } = loadToolbar({
+    fetch: async (u) => {
+      if (/\/api\/prayer/.test(u)) throw new Error('proxy down');
+      return { json: async () => ({ data: { meta: { timezone: 'Asia/Karachi' }, timings: { Fajr: '05:14', Sunrise: '06:30', Dhuhr: '12:00', Asr: '15:00', Maghrib: '17:45', Isha: '18:59' } } }) };
+    }
+  });
+  api.prayerRender(makeEl('tbBody'));
+  await new Promise(r => setTimeout(r, 30));
+  const c = api.lsGet('prayer', null);
+  assert.ok(c && c.t, 'prayer stored after fallback');
+  assert.ok(c.t.fajr, 'fajr stored lowercase (not Fajr)');
+  assert.ok(c.t.maghrib, 'maghrib stored lowercase');
+  const box = makeEl('tbBody');
+  api.prayerRender(box);
+  assert.ok(/الفجر/.test(box.innerHTML), 'fajr row rendered from lowercase key');
+});
+
+test('city: default is islamabad for weather and prayers', () => {
+  const { api } = loadToolbar();
+  assert.equal(api.getCity().lat, 33.6844);
+  assert.equal(api.getCity().lon, 73.0479);
+  assert.ok(/إسلام آباد/.test(api.getCity().name), 'name is arabic islamabad');
 });
 
 /* ==================================================================== الطقس */

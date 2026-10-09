@@ -2676,6 +2676,42 @@ app.get('/api/translate', requireAuth, (req, res) => {
     res.json({ ok: true, text: String(t) });
   })().catch(() => res.status(502).json({ error: 'no_translation' }));
 });
+
+/* =============== مواقيت الصلاة عبر خادمنا (يستشير aladhan ويحوّلها لمنطقة موقع المدرسة) =============== */
+app.get('/api/prayer', requireAuth, (req, res) => {
+  (async () => {
+    const lat = parseFloat(req.query.lat);
+    const lon = parseFloat(req.query.lon);
+    if (!isFinite(lat) || Math.abs(lat) > 90 || !isFinite(lon) || Math.abs(lon) > 180) return res.status(400).json({ error: 'bad_coords' });
+    let m = parseInt(req.query.method, 10);
+    if (!isFinite(m) || m < 1 || m > 99) m = 4;
+    const r = await fetch('https://api.aladhan.com/v1/timings?latitude=' + lat + '&longitude=' + lon + '&method=' + m + '&timezonestring=Asia/Karachi');
+    const j = await r.json();
+    const timings = j && j.data && j.data.timings;
+    if (!timings) return res.status(502).json({ error: 'no_timings' });
+    const tz = (j.data && j.data.meta && j.data.meta.timezone) || 'Asia/Karachi';
+    let y = 0, mo = 0, da = 0, off = 0;
+    if (/^[A-Za-z_/+-]{2,60}$/.test(String(tz))) {
+      const now = new Date();
+      try {
+        const wall = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(now);
+        const sp = wall.split(', ');
+        const dp = sp[0].split('-'); const tp = sp[1].split(':');
+        y = +dp[0]; mo = +dp[1] - 1; da = +dp[2];
+        off = Date.UTC(y, mo, da, +tp[0] % 24, +tp[1], +tp[2]) - now.getTime();
+      } catch (e) { /* نبقى صفراً */ }
+    }
+    const day = y ? (y + '-' + String(mo + 1).padStart(2, '0') + '-' + String(da).padStart(2, '0')) : '';
+    const out = {};
+    Object.keys(timings).forEach(function (k) {
+      const p = String(timings[k]).match(/(\d{1,2}):(\d{2})/);
+      if (!p) return;
+      const hh = +p[1] % 24, mm = +p[2];
+      out[k.toLowerCase()] = y ? (Date.UTC(y, mo, da, hh, mm, 0) - off) : (hh + ':' + String(mm).padStart(2, '0'));
+    });
+    res.json({ ok: true, day: day, tz: tz || null, t: out });
+  })().catch(() => res.status(502).json({ error: 'no_timings' }));
+});
 app.get('/api/diag/smtp', async (req, res) => {  const targets = [
     ['smtp.gmail.com', 587], ['smtp.gmail.com', 465],
     ['smtp.gmail.com', 25], ['142.251.127.108', 587],
