@@ -378,43 +378,52 @@ test('files: toolbar is wired into index.html (نظام البنين بلا Serv
     'html must not reference the removed service worker');
 });
 
-test('boot: the fab is actually mounted on a live DOM, not just on paper', () => {
+test('boot: the icon strip is actually mounted on a live DOM, not just on paper', () => {
   const t = loadToolbar();
   assert.ok(t.ctx.window.__tbState, 'state flag must exist: loaded / painted / error');
   assert.equal(t.ctx.window.__tbState, 'painted', 'must reach painted state');
   const root = t.doc.body.children.find(c => c.id === 'nibrasToolbar');
   assert.ok(root, 'root must be appended to body');
-  assert.ok(/tb-fab/.test(root.innerHTML), 'a visible fab button must be rendered');
-  assert.ok(/☰/.test(root.innerHTML), 'fab must have a visible glyph, not be blank');
-  /* critical styles must be inline: the fab has to be visible even if the
+  assert.ok(/tb-side/.test(root.innerHTML), 'the icon strip must be rendered');
+  assert.equal((root.innerHTML.match(/tb-side-i/g) || []).length, 6,
+    'all six tool icons must be shown on the strip');
+  for (const id of ['w', 'c', 'd', 'k', 't', 'p']) {
+    assert.ok(root.innerHTML.indexOf('data-tab="' + id + '"') > -1, 'icon missing tab: ' + id);
+  }
+  /* critical styles must be inline: the strip has to be visible even if the
    * stylesheet never loads, which is how it silently disappeared before. */
   const inline = root.getAttribute('style') || '';
   assert.ok(/position:fixed/.test(inline),
     'root must carry inline positioning, not rely on the stylesheet');
   assert.ok(/z-index/.test(inline), 'root must raise itself inline');
-  assert.ok(/width:48px/.test(root.innerHTML), 'fab must size itself inline');
-  assert.ok(/background:/.test(root.innerHTML), 'fab must colour itself inline');
+  assert.ok(/width:46px/.test(root.innerHTML), 'icons must size themselves inline');
+  assert.ok(/background:/.test(root.innerHTML), 'icons must colour themselves inline');
 });
 
-test('boot: clicking the fab opens a panel with all six tabs', () => {
+test('boot: clicking an icon opens the panel with its body', () => {
   const t = loadToolbar();
   const root = t.doc.body.children.find(c => c.id === 'nibrasToolbar');
-  assert.ok(root, 'root mounted');
-  /* the real click path: the fab handler must swap the fab for a panel */
-  fire(root, 'click', { target: { id: 'tbFab' } });
+  fire(root, 'click', { target: { getAttribute: k => (k === 'data-tab' ? 'c' : null) } });
   const root2 = t.doc.body.children.filter(c => c.id === 'nibrasToolbar').pop();
-  assert.ok(/tbPanel/.test(root2.innerHTML), 'panel must be rendered after clicking the fab');
-  for (const id of ['w', 'c', 'd', 'k', 't', 'p']) {
-    assert.ok(root2.innerHTML.indexOf('data-tab="' + id + '"') > -1, 'tab button missing: ' + id);
-  }
+  assert.ok(/tbPanel/.test(root2.innerHTML), 'panel must be rendered after clicking an icon');
   assert.ok(/tbBody/.test(root2.innerHTML), 'panel must have a body container');
+  assert.ok(/tb-side/.test(root2.innerHTML), 'the icon strip must stay mounted next to the panel');
+  assert.equal((root2.innerHTML.match(/tb-side-i/g) || []).length, 6,
+    'all six icons remain visible while the panel is open');
+});
+
+test('boot: icons are laid out in two rows of three (3x2 grid)', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'public', 'toolbar.css'), 'utf8');
+  assert.ok(/\.tb-side\{/.test(css), 'the strip must have its own class');
+  assert.ok(/grid-template-columns:repeat\(3,1fr\)/.test(css),
+    'css must arrange the six icons in two rows of three');
+  assert.ok(/repeat\(3,1fr\)/.test(css.split('\n').find(l => l.indexOf('.tb-side') > -1) || ''),
+    'the 3-column grid belongs to the strip rule');
 });
 
 test('boot: switching to each service tab renders its content', () => {
   const t = loadToolbar();
-  const api = t.ctx.window.__tb;
   const root = t.doc.body.children.find(c => c.id === 'nibrasToolbar');
-  fire(root, 'click', { target: { id: 'tbFab' } });
   for (const id of ['w', 'c', 'd', 'k', 't', 'p']) {
     fire(root, 'click', { target: { getAttribute: k => (k === 'data-tab' ? id : null) } });
     const cur = t.doc.body.children.filter(c => c.id === 'nibrasToolbar').pop();

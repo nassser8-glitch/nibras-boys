@@ -441,48 +441,52 @@
 
   function panelHTML() {
     var body = '<div class="tb-body" id="tbBody"></div>';
-    var tabs = TABS.map(function (t) {
-      return '<button class="tb-tab' + (t.id === tab ? ' tb-on' : '') + '" data-tab="' + t.id + '" title="' + esc(T(t.id)) + '">' + t.ic + '</button>';
-    }).join('');
     var langs = ['ar', 'en', 'ur'].map(function (k) {
       return '<button class="tb-lang' + (L() === k ? ' tb-on' : '') + '" data-lang="' + k + '">' + esc(LANGS[k].label) + '</button>';
     }).join('');
     return '<div class="tb-panel" id="tbPanel" dir="' + LANGS[L()].dir + '" lang="' + L() + '">' +
       '<div class="tb-top"><span class="tb-title">' + esc(T(tab)) + '</span>' +
       '<span class="tb-langs">' + langs + '</span>' +
-      '<button class="tb-x" id="tbClose">×</button></div>' + tabs + body + '</div>';
+      '<button class="tb-x" id="tbClose">×</button></div>' + body + '</div>';
+  }
+  /* شريط الأيقونات الجانبي: ست أدوات في صفّين (3+3) ظاهرة دائماً. */
+  function sideHTML() {
+    var ICON = 'display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;' +
+      'margin:3px;border-radius:10px;cursor:pointer;background:#fff;color:#16233a;' +
+      'border:1px solid #e3e9f2;font-size:20px;line-height:1;padding:0';
+    return '<div class="tb-side" role="toolbar">' + TABS.map(function (t) {
+      return '<button class="tb-side-i' + (t.id === tab ? ' tb-on' : '') + '" data-tab="' + t.id +
+        '" title="' + esc(T(t.id)) + '" aria-label="' + esc(T(t.id)) + '" style="' + ICON + '">' +
+        t.ic + '</button>';
+    }).join('') + '</div>';
   }
   function paint() {
     if (!root) return;
-    if (!open) {
-      root.className = 'tb-root';
-      /* تنسيق حرج مضمّن في العنصر نفسه: لو لم يصل ملف CSS لظلت الأزرار
-       * ظاهرة وموضوعة وظاهرة على الشاشة. الاعتماد على ورقة خارجية وحدها
-       * كان يعني اختفاء الشريط كاملاً بصمت إن تأخر تحميلها أو حُجب. */
-      root.setAttribute('style', 'position:fixed;z-index:2147483000;' +
-        'inset:auto 16px 16px auto;display:block;line-height:0');
-      root.innerHTML = '<button class="tb-fab" id="tbFab" aria-label="tools" ' +
-        'style="display:flex;align-items:center;justify-content:center;' +
-        'width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;' +
-        'background:#fff;color:#16233a;border:1px solid #e3e9f2;' +
-        'box-shadow:0 10px 30px rgba(16,32,64,.16);padding:0;margin:0">☰</button>';
-      window.__tbState = 'painted';
-      return;
+    /* تنسيق حرج مضمّن في العنصر نفسه: لو لم يصل ملف CSS لظل الشريط
+     * ظاهراً وموضوعاً على الشاشة. الاعتماد على ورقة خارجية وحدها
+     * كان يعني اختفاء الشريط كاملاً بصمت إن تأخر تحميلها أو حُجب. */
+    var rtl = document.documentElement && document.documentElement.dir === 'rtl';
+    var inset = rtl ? 'inset:auto auto 16px 16px;' : 'inset:auto 16px 16px auto;';
+    root.className = 'tb-root' + (open ? ' tb-open' : '');
+    root.setAttribute('style', 'position:fixed;z-index:2147483000;' + inset +
+      'background:transparent');
+    root.innerHTML = sideHTML() + (open ? panelHTML() : '');
+    if (open) {
+      var b = document.getElementById('tbBody');
+      var cur = TABS.filter(function (t) { return t.id === tab; })[0] || TABS[0];
+      cur.run(b);
     }
-    root.className = 'tb-root tb-open';
-    root.removeAttribute('style');
-    root.innerHTML = panelHTML();
-    var b = document.getElementById('tbBody');
-    var cur = TABS.filter(function (t) { return t.id === tab; })[0] || TABS[0];
-    cur.run(b);
     window.__tbState = 'painted';
   }
-  function setTab(id) { tab = id; lsSet('tab', id); paint(); }
+  function setTab(id) {
+    /* نقرة على الأيقونة المفتوحة تغلق اللوحة؛ وعلى أيقونة أخرى تبدّلها. */
+    if (id === tab && open) { open = false; lsSet('open', false); paint(); return; }
+    tab = id; open = true; lsSet('tab', id); lsSet('open', true); paint();
+  }
 
   function onClick(e) {
     var t = e.target;
     if (!t) return;
-    if (t.id === 'tbFab') { open = true; lsSet('open', true); paint(); return; }
     if (t.id === 'tbClose') { open = false; lsSet('open', false); paint(); return; }
     if (t.getAttribute('data-tab')) { setTab(t.getAttribute('data-tab')); return; }
     if (t.getAttribute('data-lang')) { setLang(t.getAttribute('data-lang')); return; }
@@ -545,15 +549,6 @@
     document.addEventListener('keydown', onKey);
     try { paint(); } catch (e) { fail('paint: ' + ((e && e.message) || e)); return; }
 
-    /* موقع المستخدم إن سمح، وإلا عمّان. لا نرفض الإذن ولا نطلبه مرتين. */
-    if (!lsGet('geo', false) && navigator.geolocation) {
-      lsSet('geo', true);
-      navigator.geolocation.getCurrentPosition(function (p) {
-        CITY = { lat: p.coords.latitude, lon: p.coords.longitude, name: '—' };
-        lsSet('weather', null); lsSet('prayer', null);
-        if (open) paint();
-      }, function () {}, { timeout: 8000, maximumAge: 600000 });
-    }
     /* الساعة تتحدّث كل 30 ثانية ما دامت اللوحة مفتوحة على تبويب الساعة. */
     setInterval(function () {
       if (open && tab === 'c') { var b = document.getElementById('tbBody'); if (b) clockRender(b); }
