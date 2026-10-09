@@ -27,14 +27,14 @@
   }
 
   /* ------------------------------------------------------------------ واللغات
-   * ar = العربية، en = English، jo = لهجة أردنية شامية.
-   * jo ليست لغة مستقلة في المترجم: هي عربية تُمرَّر بطبقة لهجة في النهاية. */
+   * ar = العربية، en = English، ur = الأردية (لغة باكستان).
+   * ur لغة مستقلة تُترجم عبر MyMemory عند توفر الاتصال. */
   var LANGS = {
     ar: { dir: 'rtl', label: 'عربي',  weather: 'الطقس',   clock: 'الساعة',  cal: 'التقويم', calc: 'الحاسبة', tr: 'المترجم', prayer: 'الصلاة' },
     en: { dir: 'ltr', label: 'English', weather: 'Weather', clock: 'Clock',  cal: 'Calendar', calc: 'Calculator', tr: 'Translate', prayer: 'Prayer' },
-    jo: { dir: 'rtl', label: 'أردني',  weather: 'الجو',     clock: 'الساعة',  cal: 'التقويم', calc: 'الحاسبة', tr: 'المترجم', prayer: 'الصلاة' }
+    ur: { dir: 'rtl', label: 'الأردية', weather: 'موسم',   clock: 'گھڑی',    cal: 'تقویم',   calc: 'حساب گر',  tr: 'مترجم',    prayer: 'نماز' }
   };
-  function L() { var c = lsGet('lang', 'ar'); return LANGS[c] ? c : 'ar'; }
+  function L() { var c = lsGet('lang', 'ar'); if (c === 'jo') c = 'ur'; return LANGS[c] ? c : 'ar'; }
   function setLang(c) { if (!LANGS[c]) return; lsSet('lang', c); paint(); }
   function T(k) { var m = LANGS[L()]; return m[k] || k; }
 
@@ -251,7 +251,7 @@
 
   /* ============================================================ 5) المترجم */
   /* قاموس مدرسي صغير يعمل بلا إنترنت؛ وعند توفّره يُستشار MyMemory للترجمة
-   * الكاملة. «الأردني» طبقة لهجة فوق العربية لا لغة منفصلة. */
+   * الكاملة. الأردية لغة باكستان الكتابية. */
   var DICT_EN_AR = {
     'hello': 'مرحبا', 'hi': 'أهلا', 'good morning': 'صباح الخير', 'goodbye': 'مع السلامة',
     'school': 'مدرسة', 'student': 'طالب', 'students': 'طلاب', 'teacher': 'معلم', 'teachers': 'معلمين',
@@ -272,47 +272,11 @@
   var DICT_AR_EN = {};
   Object.keys(DICT_EN_AR).forEach(function (k) { DICT_AR_EN[DICT_EN_AR[k]] = k; });
 
-  /* طبقة اللهجة الأردنية: العربية الفصحى ← لهجة أردنية شامية.
-   * القواعد مطبَّقة بالترتيب: الأطول أولاً حتى لا يبتلع «كيف» جذرَ «كيفك».
-   *  1) صيغ الحوار: «كيف حالك» ← «كيفك»، «ما عندك» ← «ماعندك».
-   *  2) أدوات الجواب: «نعم/لا» ← «إي/لا».
-   *  3) ضمائر المخاطبة: التاء المربوطة ← الهاء عند المنادىMale.
-   *  4) التحول إلى المضارع الشاميiah: ستقبل ← «رح»، ستذهب ← «رح تروح». */
-  var JO_RULES = [
-    /* صيغ مركّبة قبل المفردات */
-    ['كيف حالك', 'كيفك'], ['كيف الحال', 'كيفك'], ['ما عندك', 'ماعندك'], ['ما في داعي', 'مافي داعي'],
-    ['بإذن الله', 'إن شاء الله'], ['أريدك', 'بديك'], ['أريد', 'بدي'], ['أرسل', 'ابعت'],
-    ['يجب أن', 'لازم'], ['فقط', 'بس'], ['كثيراً', 'كتير'], ['قليلاً', 'شوي'], ['جداً', 'كتير'],
-    ['الآن', 'هلق'], ['غداً', 'بكرا'], ['أمس', 'امبارح'], ['متى', 'إمتى'], ['أين', 'وين'],
-    ['ماذا', 'شو'], ['من', 'مين'], ['نعم', 'إي'], ['أجل', 'إي'],
-    ['حسناً', 'ماشي'], ['حسنًا', 'ماشي'], ['أوكي', 'ماشي'], ['تمام', 'ماشي'], ['هيا', 'يلا'],
-    ['من فضلك', 'لو سمحت'], ['انظر', 'شوف'], ['انظري', 'شوفي'], ['تكلم', 'احكي'],
-    ['اذهب', 'روح'], ['اذهبي', 'روحي'], ['أنت', 'إنت'], ['نحن', 'إحنا']
-  ];
-  function toJordanian(s) {
-    var out = String(s == null ? '' : s);
-    if (!out.trim()) return out;
-    JO_RULES.forEach(function (r) {
-      if (!r[0] || r[1] === '' || r[0] === r[1]) return;
-      if (out.indexOf(r[0]) === -1) return;
-      out = out.split(r[0]).join(r[1]);
-    });
-    /* التاء المربوطة في آخر الكلمة تصير هاء عند المخاطبة الشامية.
-     * لا نستعمل \b هنا: حدود الكلمة في JS مبنية على [A-Za-z0-9_] فقط،
-     * وحرف التاء المربوطة خارجها، فلا يتحقق \b أبداً بعده. */
-    return out.replace(/ة(?=$|[\s.,،!؟;:؛()\[\]])/g, 'ه');
-  }
-
   function trDict(src, from, to) {
     var t = String(src).trim().toLowerCase();
     if (!t) return '';
     if (from === 'en' && to === 'ar') return DICT_EN_AR[t] || '';
     if (from === 'ar' && to === 'en') return DICT_AR_EN[t] || '';
-    if (from === 'ar' && to === 'jo') return toJordanian(t);
-    if (from === 'en' && to === 'jo') {
-      var a = DICT_EN_AR[t];
-      return a ? toJordanian(a) : '';
-    }
     return '';
   }
   function trRemote(src, from, to) {
@@ -330,21 +294,20 @@
     var from = lsGet('tr_from', 'ar'), to = lsGet('tr_to', 'en');
     var out = lsGet('tr_out', '');
     var src = lsGet('tr_in', '');
-    var names = { ar: 'عربي', en: 'English', jo: 'أردني' };
-    var opts = ['ar', 'en', 'jo'].map(function (k) {
+    var names = { ar: 'عربي', en: 'English', ur: 'الأردية' };
+    var opts = ['ar', 'en', 'ur'].map(function (k) {
       return '<option value="' + k + '"' + (k === from ? ' selected' : '') + '>' + names[k] + '</option>';
     }).join('');
-    var opts2 = ['ar', 'en', 'jo'].map(function (k) {
+    var opts2 = ['ar', 'en', 'ur'].map(function (k) {
       return '<option value="' + k + '"' + (k === to ? ' selected' : '') + '>' + names[k] + '</option>';
     }).join('');
     box.innerHTML =
       '<div class="tb-tr-sel"><select id="tbTrFrom" class="tb-inp">' + opts + '</select>' +
       '<button class="tb-btn" id="tbTrSwap" title="swap">⇄</button>' +
       '<select id="tbTrTo" class="tb-inp">' + opts2 + '</select></div>' +
-      '<textarea id="tbTrIn" class="tb-inp tb-area" placeholder="' + (from === 'ar' ? 'اكتب النص…' : 'Type here…') + '">' + esc(src) + '</textarea>' +
+      '<textarea id="tbTrIn" class="tb-inp tb-area" placeholder="' + (from === 'ar' ? 'اكتب النص…' : from === 'ur' ? 'اردو لکھیں…' : 'Type here…') + '">' + esc(src) + '</textarea>' +
       '<button class="tb-btn tb-go" id="tbTrGo">' + esc(L() === 'en' ? 'Translate' : 'ترجمة') + '</button>' +
-      '<div class="tb-tr-out" id="tbTrOut">' + (out ? esc(out) : '') + '</div>' +
-      (from === 'jo' || to === 'jo' ? '<div class="tb-muted">' + esc(L() === 'en' ? 'Jordanian dialect' : 'لهجة أردنية') + '</div>' : '');
+      '<div class="tb-tr-out" id="tbTrOut">' + (out ? esc(out) : '') + '</div>';
   }
   function trGo(box) {
     var src = String(lsGet('tr_in', '')).trim();
@@ -352,11 +315,9 @@
     var from = lsGet('tr_from', 'ar'), to = lsGet('tr_to', 'en');
     var d = trDict(src, from, to);
     if (d) { lsSet('tr_out', d); trRender(box); return; }
-    if (from === 'ar' && to === 'jo') { lsSet('tr_out', src); trRender(box); return; }
     box.querySelector('#tbTrOut').textContent = '…';
     trRemote(src, from, to).then(function (t) {
-      var fin = to === 'jo' ? toJordanian(t) : t;
-      lsSet('tr_out', fin); trRender(box);
+      lsSet('tr_out', t); trRender(box);
     }).catch(function () {
       lsSet('tr_out', ''); trRender(box);
       var o = box.querySelector('#tbTrOut');
@@ -429,7 +390,7 @@
     var tabs = TABS.map(function (t) {
       return '<button class="tb-tab' + (t.id === tab ? ' tb-on' : '') + '" data-tab="' + t.id + '" title="' + esc(T(t.id)) + '">' + t.ic + '</button>';
     }).join('');
-    var langs = ['ar', 'en', 'jo'].map(function (k) {
+    var langs = ['ar', 'en', 'ur'].map(function (k) {
       return '<button class="tb-lang' + (L() === k ? ' tb-on' : '') + '" data-lang="' + k + '">' + esc(LANGS[k].label) + '</button>';
     }).join('');
     return '<div class="tb-panel" id="tbPanel" dir="' + LANGS[L()].dir + '" lang="' + L() + '">' +
@@ -547,7 +508,7 @@
 
   /* نExport الدوال الصافية للاختبار دون واجهة. */
   window.__tb = {
-    calcEval: calcEval, trDict: trDict, toJordanian: toJordanian,
+    calcEval: calcEval, trDict: trDict,
     hijri: hijri, prayerRender: prayerRender, weatherRender: weatherRender,
     trRemote: trRemote, fetchWeather: fetchWeather, fetchPrayer: fetchPrayer,
     getCity: function () { return CITY; }, setCity: function (c) { CITY = c; },

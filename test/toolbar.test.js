@@ -166,36 +166,21 @@ test('translator: unknown phrase yields empty string, never a wrong guess', () =
   assert.equal(api.trDict('xyz', 'ar', 'en'), '');
 });
 
-test('translator: jordanian is a dialect layer over arabic, not a new language', () => {
+test('translator: urdu (ur) replaces the jordanian dialect; no jo layer remains', () => {
   const { api } = loadToolbar();
-  /* the output stays in arabic script, it is never latinised */
-  assert.equal(api.trDict('كيفك', 'ar', 'jo'), 'كيفك');
-  assert.equal(api.trDict('شو', 'ar', 'jo'), 'شو');
-  /* a fusha phrase becomes its shami equivalent */
-  assert.equal(api.toJordanian('كيف حالك'), 'كيفك');
-  assert.equal(api.toJordanian('الآن'), 'هلق');
-  assert.equal(api.toJordanian('أين'), 'وين');
+  assert.equal(api.trDict('طالب', 'ar', 'ur'), '', 'urdu has no offline dialect dict');
+  assert.equal(api.trDict('student', 'en', 'ur'), '', 'urdu goes to remote, not a dialect guess');
+  assert.ok(/ur: \{ dir: 'rtl', label: 'الأردية'/.test(SRC), 'urdu entry is rtl with label الأردية');
+  assert.ok(!/toJordanian/.test(SRC), 'jordanian converter removed');
+  assert.ok(!/jo: \{/.test(SRC), 'no jo language entry remains');
+  assert.ok(/var langs = \['ar', 'en', 'ur'\]/.test(SRC), 'toolbar language buttons offer ar/en/ur');
 });
 
-test('translator: jordanian conversion never emits latin or leftover tokens', () => {
+test('translator: ar/en offline school dictionary still resolves', () => {
   const { api } = loadToolbar();
-  const samples = ['كيفك شو هلق', 'معلم في المدرسة', 'أريد أن أرسل', 'من فضلك', ''];
-  for (const s of samples) {
-    const j = api.toJordanian(s);
-    assert.ok(!/[A-Za-z]/.test(j), 'no latin leaked for: ' + s + ' -> ' + j);
-    assert.ok(!/\|\||plea|ancien/.test(j), 'no leftover tokens for: ' + s);
-  }
-});
-
-test('translator: jordanian turns a final t marbuta into ha', () => {
-  const { api } = loadToolbar();
-  assert.equal(api.toJordanian('مدرسة'), 'مدرسه');
-});
-
-test('translator: english -> jordanian goes through arabic', () => {
-  const { api } = loadToolbar();
-  /* المدرسة ← «مدرسه» بالعامية الشامية، لا تُترجَم إلى حروف لاتينية */
-  assert.equal(api.trDict('school', 'en', 'jo'), 'مدرسه');
+  assert.equal(api.trDict('student', 'en', 'ar'), 'طالب');
+  assert.equal(api.trDict('طالب', 'ar', 'en'), 'student');
+  assert.equal(api.trDict('zzz qqq', 'en', 'ar'), '');
 });
 
 /* ================================================================== التقويم */
@@ -291,9 +276,9 @@ test('weather: geolocation override changes the coordinates used', () => {
 test('languages: three locales, each with its own direction', () => {
   const { api } = loadToolbar();
   const s = loadToolbar().ctx.window.__tbStrings;
-  assert.deepEqual(Object.keys(s).sort(), ['ar', 'en', 'jo']);
+  assert.deepEqual(Object.keys(s).sort(), ['ar', 'en', 'ur']);
   assert.equal(s.ar.dir, 'rtl');
-  assert.equal(s.jo.dir, 'rtl');
+  assert.equal(s.ur.dir, 'rtl');
   assert.equal(s.en.dir, 'ltr');
   for (const k of Object.keys(s)) {
     for (const t of ['weather', 'clock', 'cal', 'calc', 'tr', 'prayer']) {
