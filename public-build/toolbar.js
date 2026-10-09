@@ -267,7 +267,9 @@
     'month': 'شهر', 'year': 'سنة', 'day': 'يوم', 'date': 'تاريخ', 'time': 'وقت', 'now': 'الآن',
     'weather': 'الطقس', 'prayer': 'الصلاة', 'calendar': 'تقويم', 'thank you': 'شكرا',
     'good': 'جيد', 'bad': 'سيء', 'important': 'مهم', 'follow up': 'قيد المتابعة', 'low': 'منخفضة',
-    'medium': 'متوسطة', 'high': 'عالية', 'pending': 'قيد الانتظار', 'authority': 'الجهة المعنية'
+    'medium': 'متوسطة', 'high': 'عالية', 'pending': 'قيد الانتظار', 'authority': 'الجهة المعنية',
+    'man': 'رجل', 'woman': 'امرأة', 'boy': 'ولد', 'girl': 'بنت',
+    'father': 'أب', 'mother': 'أم', 'brother': 'أخ', 'sister': 'أخت', 'friend': 'صديق'
   };
   var DICT_AR_EN = {};
   Object.keys(DICT_EN_AR).forEach(function (k) { DICT_AR_EN[DICT_EN_AR[k]] = k; });
@@ -280,14 +282,27 @@
     return '';
   }
   function trRemote(src, from, to) {
-    var pair = from + '|' + to;
     var q = encodeURIComponent(src);
-    return fetch('https://api.mymemory.translated.net/get?q=' + q + '&langpair=' + encodeURIComponent(pair))
-      .then(function (r) { return r.json(); })
+    var pair = encodeURIComponent(from + '|' + to);
+    /* عبر خادمنا أولاً (نفس الأصل، بلا حواجز)؛ وعند فشله نجرّب خدمة MyMemory مباشرة. */
+    return fetch('/api/translate?q=' + q + '&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to))
+      .then(function (r) {
+        if (r.status !== 200) throw new Error('proxy status ' + r.status);
+        return r.json();
+      })
       .then(function (j) {
-        var t = j && j.responseData && j.responseData.translatedText;
+        var t = j && j.text;
         if (!t || /MYMEMORY WARNING|INVALID/i.test(String(t))) throw new Error('no translation');
         return String(t);
+      })
+      .catch(function () {
+        return fetch('https://api.mymemory.translated.net/get?q=' + q + '&langpair=' + pair)
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            var t = j && j.responseData && j.responseData.translatedText;
+            if (!t || /MYMEMORY WARNING|INVALID/i.test(String(t))) throw new Error('no translation');
+            return String(t);
+          });
       });
   }
   function trRender(box) {

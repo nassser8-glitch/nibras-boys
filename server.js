@@ -2658,6 +2658,24 @@ app.get('/api/health', (req, res) => {
     },
   });
 });
+
+/* =============== مترجم الوسيط (ترجمة اللوحة عبر خادمنا بدل مباشرة المتصفح) ===============
+ * المتصفح قد يحجبه الحاجز العام أو ينقطع عن خدمة الترجمة، فتمر الترجمة عبر خادمنا
+ * الذي يستشير MyMemory ويعيد النص الناتج إلى اللوحة (نفس الأصل فلا CORS). */
+app.get('/api/translate', requireAuth, (req, res) => {
+  (async () => {
+    const q = String(req.query.q || '').trim().slice(0, 1000);
+    const from = String(req.query.from || '').trim().slice(0, 10);
+    const to = String(req.query.to || '').trim().slice(0, 10);
+    if (!q || !from || !to) return res.status(400).json({ error: 'missing' });
+    if (!/^[a-z]{2,5}$/.test(from) || !/^[a-z]{2,5}$/.test(to)) return res.status(400).json({ error: 'bad_langs' });
+    const r = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(q) + '&langpair=' + encodeURIComponent(from + '|' + to));
+    const j = await r.json();
+    const t = j && j.responseData && j.responseData.translatedText;
+    if (!t || /MYMEMORY WARNING|INVALID/i.test(String(t))) return res.status(502).json({ error: 'no_translation' });
+    res.json({ ok: true, text: String(t) });
+  })().catch(() => res.status(502).json({ error: 'no_translation' }));
+});
 app.get('/api/diag/smtp', async (req, res) => {  const targets = [
     ['smtp.gmail.com', 587], ['smtp.gmail.com', 465],
     ['smtp.gmail.com', 25], ['142.251.127.108', 587],
