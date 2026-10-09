@@ -397,7 +397,7 @@ test('boot: the icon strip is actually mounted on a live DOM, not just on paper'
     'root must carry inline positioning, not rely on the stylesheet');
   assert.ok(/z-index/.test(inline), 'root must raise itself inline');
   assert.ok(/width:46px/.test(root.innerHTML), 'icons must size themselves inline');
-  assert.ok(/background:/.test(root.innerHTML), 'icons must colour themselves inline');
+  assert.ok(/border-radius:10px/.test(root.innerHTML), 'icons must stay shaped inline');
 });
 
 test('boot: clicking an icon opens the panel with its body', () => {
@@ -440,6 +440,17 @@ test('boot: docks under the presence widget when it appears, returns to floating
   const before = root.innerHTML;
   api.redock();
   assert.equal(root.innerHTML, before, 'no repaint when the dock is already in place');
+});
+
+test('boot: docked strip is themed to the navy sidebar, not stark white', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'public', 'toolbar.css'), 'utf8');
+  const i = css.indexOf('.tb-root.tb-docked{');
+  assert.ok(i >= 0, 'docked rule must exist');
+  const blk = css.slice(i);
+  assert.ok(/--tb-bg:#122f52/.test(blk), 'docked palette is navy');
+  assert.ok(/--tb-fg:#eef4fd/.test(blk), 'docked text is light');
+  assert.ok(/rgba\(255,255,255,\.07\)/.test(blk), 'strip bg is translucent, not solid white');
+  assert.ok(/border-top:2px solid var\(--blue/.test(blk), 'strip shares the navy accent line');
 });
 
 test('boot: switching to each service tab renders its content', () => {

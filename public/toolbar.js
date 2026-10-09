@@ -453,8 +453,7 @@
   /* شريط الأيقونات الجانبي: ست أدوات في صفّين (3+3) ظاهرة دائماً. */
   function sideHTML() {
     var ICON = 'display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;' +
-      'margin:3px;border-radius:10px;cursor:pointer;background:#fff;color:#16233a;' +
-      'border:1px solid #e3e9f2;font-size:20px;line-height:1;padding:0';
+      'margin:3px;border-radius:10px;cursor:pointer;font-size:20px;line-height:1;padding:0';
     return '<div class="tb-side" role="toolbar">' + TABS.map(function (t) {
       return '<button class="tb-side-i' + (t.id === tab ? ' tb-on' : '') + '" data-tab="' + t.id +
         '" title="' + esc(T(t.id)) + '" aria-label="' + esc(T(t.id)) + '" style="' + ICON + '">' +
