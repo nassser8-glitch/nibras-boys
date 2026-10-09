@@ -80,7 +80,7 @@ function loadToolbar(opts) {
     body: makeEl('body'),
     documentElement: { dataset: {}, setAttribute() {} },
     createElement: t => makeEl(''),
-    addEventListener() {}, getElementById: id => findBySel(doc.body, '#' + id)
+    addEventListener() {}, getElementById: id => (id === 'nibrasToolbarDock' && opts.dockEl) ? opts.dockEl : findBySel(doc.body, '#' + id)
   };
   const fetchCalls = [];
   const fetchImpl = opts.fetch || (() => Promise.reject(new Error('offline')));
@@ -419,6 +419,27 @@ test('boot: icons are laid out in two rows of three (3x2 grid)', () => {
     'css must arrange the six icons in two rows of three');
   assert.ok(/repeat\(3,1fr\)/.test(css.split('\n').find(l => l.indexOf('.tb-side') > -1) || ''),
     'the 3-column grid belongs to the strip rule');
+});
+
+test('boot: docks under the presence widget when it appears, returns to floating when gone', () => {
+  const dock = makeEl('nibrasToolbarDock');
+  const { api, doc } = loadToolbar({ dockEl: dock });
+  const root = doc.body.children.find(c => c.id === 'nibrasToolbar');
+  assert.ok(root, 'boots floating on body');
+  assert.ok(!/tb-docked/.test(root.className), 'no docked class before the widget exists');
+  assert.ok(/position:fixed/.test(root.getAttribute('style') || ''), 'floating uses fixed inline');
+
+  /* الصفحة رُسمت، بطاقة المتواجدون ظهرت، فأرست page الشريط تحتها */
+  api.redock();
+  assert.ok(dock.children.some(c => c.id === 'nibrasToolbar'), 'strip moved under the widget');
+  assert.ok(/tb-docked/.test(root.className), 'docked class applied');
+  assert.ok(!/position:fixed/.test(root.getAttribute('style') || ''), 'fixed inline removed when docked');
+
+  /* الإطالة: بقي المرسى نفسه فلا نعيد الرسم (لا تُصفّر لوحة المترجم) */
+  dock.children.length = 0; dock.appendChild(root);
+  const before = root.innerHTML;
+  api.redock();
+  assert.equal(root.innerHTML, before, 'no repaint when the dock is already in place');
 });
 
 test('boot: switching to each service tab renders its content', () => {

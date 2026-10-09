@@ -3713,7 +3713,7 @@ function renderLayout(user, hash){
         <div class="sidebar-widgets">
           ${user.role !== 'STUDENT' ? msgTodayWidget : ''}
           <div id="weatherBox"></div>
-          ${(user.role === 'ADMIN' || user.role === 'AGENT') ? '<div id="presentNowBox"></div>' : ''}
+          ${(user.role === 'ADMIN' || user.role === 'AGENT') ? '<div id="presentNowBox"></div><div id="nibrasToolbarDock"></div>' : ''}
         </div>
       </aside>
       <main class="main">
@@ -6436,11 +6436,12 @@ function updatePresentNow(){
       <div style="font-size:22px;font-weight:900;color:#4ade80;line-height:1.1">${info.n}</div>
       <div style="font-size:11px;color:#86efac">${teacherWord}</div>
     </div>
-    <div class="info-card" onclick="showPresentStudentsNow()" style="cursor:pointer" title="اضغط لعرض الطلاب المتواجدات في الموقع الآن (من فتحت التطبيق)">
-      <div class="muted small" style="font-size:10.5px">👧 المتواجدات في الموقع — ${schoolLabel}</div>
+    <div class="info-card" onclick="showPresentStudentsNow()" style="cursor:pointer" title="اضغط لعرض الطلاب المتواجدون في الموقع الآن (من فتحت التطبيق)">
+      <div class="muted small" style="font-size:10.5px">👧 المتواجدون في الموقع — ${schoolLabel}</div>
       <div style="font-size:22px;font-weight:900;color:#4ade80;line-height:1.1">${sinfo.n}</div>
       <div style="font-size:11px;color:#86efac">${studentWord}${sinfo.n ? ` <span style="color:#fca5a5">— الآن</span>` : ''}</div>
     </div>`;
+  if(window.__tb && window.__tb.redock) window.__tb.redock();
   refreshPresence(school);
 }
 function showPresentNow(){
@@ -6454,7 +6455,7 @@ function showPresentNow(){
   const absent = info.absentNames.length ? `<p class="muted" style="margin-top:10px">غير متواجدين الآن: ${info.absentNames.map(escapeHtml).join('، ')}</p>` : '';
   openDetails('🧑‍🏫 المتواجدون الآن — قسم ' + schoolLabel + ' (' + info.n + ' ' + teacherWord + ')', list + absent);
 }
-/* الطلاب المتواجدات في الموقع الآن (من فتحت التطبيق في آخر 3 دقائق) */
+/* الطلاب المتواجدون في الموقع الآن (من فتحت التطبيق في آخر 3 دقائق) */
 function presentStudentsOnlineInfo(school){
   const cutoff = Date.now() - 3 * 60 * 1000;
   const students = presenceUsersFor(school).filter(u => u.role === 'STUDENT' && u.active);
@@ -6468,8 +6469,8 @@ function showPresentStudentsNow(){
   const studentWord = 'طالب';
   const list = info.n
     ? info.names.map(t => `<li class="dl-item"><span>👧 ${escapeHtml(t.name)}</span><span class="muted" style="margin-inline-start:auto">🟢 في الموقع</span></li>`).join('')
-    : `<li class="dl-empty">لا توجد ${studentWord} متواجدة في الموقع الآن</li>`;
-  openDetails('👧 الطلاب المتواجدات في الموقع الآن — ' + schoolLabel + ' (' + info.n + ' ' + studentWord + ')', list);
+    : `<li class="dl-empty">لا يوجد طلاب متواجدون في الموقع الآن</li>`;
+  openDetails('👧 الطلاب المتواجدون في الموقع الآن — ' + schoolLabel + ' (' + info.n + ' ' + studentWord + ')', list);
 }
 
 

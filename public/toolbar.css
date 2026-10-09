@@ -29,6 +29,12 @@ html[dir="rtl"] .tb-root.tb-open{ align-items:flex-start; }
 .tb-side-i:focus-visible{ outline:2px solid var(--tb-acc); outline-offset:2px; }
 .tb-root :focus-visible{ outline:2px solid var(--tb-acc); outline-offset:2px; }
 
+/* ---------- المرسى: الشريط مرسى داخل الصفحة تحت «المتواجدون في الموقع» ---------- */
+.tb-root.tb-docked{ position:static; margin:2px 0 0; background:transparent; box-shadow:none; }
+.tb-root.tb-docked .tb-side{ width:100%; box-sizing:border-box; }
+.tb-root.tb-docked.tb-open{ align-items:stretch; }
+.tb-root.tb-docked .tb-panel{ width:100%; }
+
 /* ---------- اللوحة ---------- */
 .tb-panel{ width:min(340px, calc(100vw - 32px)); background:var(--tb-bg);
   border:1px solid var(--tb-line); border-radius:14px; box-shadow:var(--tb-shadow);

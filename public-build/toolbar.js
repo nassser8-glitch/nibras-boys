@@ -437,6 +437,7 @@
   ];
   var open = lsGet('open', false);
   var tab = lsGet('tab', 'w');
+  var DOCK = false; /* رُسو الشريط تحت بطاقة «المتواجدون في الموقع» ما دامت ظاهرة */
   var root = null;
 
   function panelHTML() {
@@ -462,14 +463,22 @@
   }
   function paint() {
     if (!root) return;
-    /* تنسيق حرج مضمّن في العنصر نفسه: لو لم يصل ملف CSS لظل الشريط
-     * ظاهراً وموضوعاً على الشاشة. الاعتماد على ورقة خارجية وحدها
-     * كان يعني اختفاء الشريط كاملاً بصمت إن تأخر تحميلها أو حُجب. */
-    var rtl = document.documentElement && document.documentElement.dir === 'rtl';
-    var inset = rtl ? 'inset:auto auto 16px 16px;' : 'inset:auto 16px 16px auto;';
-    root.className = 'tb-root' + (open ? ' tb-open' : '');
-    root.setAttribute('style', 'position:fixed;z-index:2147483000;' + inset +
-      'background:transparent');
+    var dockedNow = DOCK && document.getElementById('nibrasToolbarDock');
+    root.className = 'tb-root' + (open ? ' tb-open' : '') + (dockedNow ? ' tb-docked' : '');
+    if (dockedNow) {
+      /* مرسى داخل الصفحة تحت بطاقة المتواجدون — بلا تثبيت، يتحرّك مع التخطيط. */
+      root.removeAttribute('style');
+      if (root.parentNode !== dockedNow) dockedNow.appendChild(root);
+    } else {
+      /* تنسيق حرج مضمّن في العنصر نفسه: لو لم يصل ملف CSS لظل الشريط
+       * ظاهراً وموضوعاً على الشاشة. الاعتماد على ورقة خارجية وحدها
+       * كان يعني اختفاء الشريط كاملاً بصمت إن تأخر تحميلها أو حُجب. */
+      var rtl = document.documentElement && document.documentElement.dir === 'rtl';
+      var inset = rtl ? 'inset:auto auto 16px 16px;' : 'inset:auto 16px 16px auto;';
+      root.setAttribute('style', 'position:fixed;z-index:2147483000;' + inset +
+        'background:transparent');
+      if (root.parentNode !== document.body) document.body.appendChild(root);
+    }
     root.innerHTML = sideHTML() + (open ? panelHTML() : '');
     if (open) {
       var b = document.getElementById('tbBody');
@@ -477,6 +486,19 @@
       cur.run(b);
     }
     window.__tbState = 'painted';
+  }
+  /* يُستدعى بعد أن ترسم الصفحة لوحة «المتواجدون في الموقع» (أو تزول) لنرست
+   * تحتها أو نعود عائمين. لا نعيد الرسم إلا عند تغيّر المرسى فعلاً حتى لا
+   * تُصفّر لوحة المترجم أثناء الكتابة في كل تحديث حضور. */
+  function reDock() {
+    var dock = document.getElementById('nibrasToolbarDock');
+    var now = !!dock;
+    if (root && now === DOCK) {
+      var inPlace = root.parentNode === (now ? dock : document.body);
+      if (inPlace) return;
+    }
+    DOCK = now;
+    paint();
   }
   function setTab(id) {
     /* نقرة على الأيقونة المفتوحة تغلق اللوحة؛ وعلى أيقونة أخرى تبدّلها. */
@@ -549,8 +571,10 @@
     document.addEventListener('keydown', onKey);
     try { paint(); } catch (e) { fail('paint: ' + ((e && e.message) || e)); return; }
 
-    /* الساعة تتحدّث كل 30 ثانية ما دامت اللوحة مفتوحة على تبويب الساعة. */
+    /* الساعة تتحدّث كل 30 ثانية ما دامت اللوحة مفتوحة على تبويب الساعة،
+     * ومعها نتحقق من المرسى (بطاقة المتواجدون) صعوداً أو هبوطاً. */
     setInterval(function () {
+      reDock();
       if (open && tab === 'c') { var b = document.getElementById('tbBody'); if (b) clockRender(b); }
     }, 30000);
   }
@@ -561,7 +585,8 @@
     hijri: hijri, prayerRender: prayerRender, weatherRender: weatherRender,
     trRemote: trRemote, fetchWeather: fetchWeather, fetchPrayer: fetchPrayer,
     getCity: function () { return CITY; }, setCity: function (c) { CITY = c; },
-    lsGet: lsGet, lsSet: lsSet, setLang: setLang, getLang: L
+    lsGet: lsGet, lsSet: lsSet, setLang: setLang, getLang: L,
+    redock: reDock
   };
   window.__tbStrings = LANGS;
   /* عَلَم التشخيص: يميّز «السكربت لم يُحمَّل» عن «حمِل وفشل» عن «اشتغل». */
